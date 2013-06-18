@@ -27,12 +27,12 @@ PASSWORD = ""
 #     USERNAME = "/home/me/pgns"
 # Bad example with trailing slash
 #    USERNAME = "/home/me/pgns/"
-PGNDIR  = "/Volumes/Data/pgn"
+PGNDIR  = "~/pgns"
 
 import urllib2
 from bs4 import BeautifulSoup
 import re
-from os.path import exists
+from os.path import exists, expanduser
 from os import makedirs
 
 def main():
@@ -80,7 +80,7 @@ def main():
                     # get_game_info() functions for those domains. And I did not want
                     # to rewrite get_path_from_info() every time.
                     info = get_game_info(soup, row, gametype)
-                    path = PGNDIR + "/" + get_path_from_info(info, gametype)
+                    path = expanduser(PGNDIR + "/" + get_path_from_info(info, gametype))
                 
                     # If the directory structure does not exist, create it
                     if not exists(path):
@@ -93,7 +93,10 @@ def main():
                 
                     if not exists(destination):
                         print "Downloading {0}".format(filename)
-                        url = "http://www.chess.com/echess/download_pgn?id={0}".format(info['id'])
+                        if gametype == 'echess':
+                            url = "http://www.chess.com/echess/download_pgn?id={0}".format(info['id'])
+                        else:
+                            url = "http://www.chess.com/echess/download_pgn?lid={0}".format(info['id'])
                         save_file(url, destination)
                         saved += 1
                 
